@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+        <Script>
+        function Get (){
+                const iduser= document.getElementById("getId").value;
+                fetch(`https://jsonplaceholder.typicode.com/posts/${iduser}`,
+                {
+                        method:"GET",
+                        headers:{
+                            "Content-Type":"application/json; charset=UTF-8"
+                        }
+
+                    }).then((response) => {
+                        console.log("ok");
+                        return response.json();
+                    })
+                        .then((json) => console.log(json))
+                        .catch(error =>{
+                        alert ("Network Error: " + error.message)
+                    });
+        }
+         
+         function post(){
+    const iduser = document.getElementById("postId").value;
+    const title = document.getElementById("title").value;
+    const body = document.getElementById("body").value;
+
+    fetch(`https://jsonplaceholder.typicode.com/posts/`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: JSON.stringify({
+            userId: Number(iduser),
+            title: title,
+            body: body
+        })
+    })
+    .then((response) => {
+        console.log("ok");
+        return response.json();
+    })
+    .then((json) => console.log(json))
+    .catch(error =>{
+        alert ("Network Error: " + error.message)
+    });
+}
+        function petiput() {
+        const id = document.getElementById("Ingrese su ID usuario").value;   
+        const userId = document.getElementById("Nombre de usuario").value;
+        const title = document.getElementById("Title").value;
+        const body = document.getElementById("obody").value;
+        
+
+
+          fetch(`https://jsonplaceholder.typicode.com/posts/${id}`,{
+        
+            method: "PUT" ,
+            headers: {
+             "Content-Type":"application/json; charset=UTF-8"
+             },
+            body: JSON.stringify({
+                userId: userId,
+                title: title,
+                body: body,
+                id:id
+            })
+                  }).then((response) => {
+                      console.log("ok");
+                        return response.json();
+                    })
+                        .then((json) => console.log(json))
+                        .catch(error =>{
+                        alert ("Network Error: " + error.message)
+                    });
+        }
+function peticionPatch() { 
+    const id = document.getElementById("parId").value;
+    const field = document.getElementById("parField").value;
+    const value = document.getElementById("parValue").value;
+
+    const data = {
+        [field]: field === "userId" ? Number(value) : value
+    };
+
+    fetch(`https://jsonplaceholder.typicode.com/posts/${id}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+        },
+        body: JSON.stringify(data)
+    })
+    .then((response) => {
+        console.log("ok");
+        return response.json();
+    })
+    .then((json) => console.log(json))
+    .catch(error => {
+        alert("Network Error: " + error.message);
+    });
+}
+
+
+
+function petidelete() {
+    const id = document.getElementById("ID").value;
+
+    fetch(`https://jsonplaceholder.typicode.com/posts/${id}`,
+    {
+        method: "DELETE",
+        headers: {
+            "Content-Type":"application/json; charset=UTF-8"
+        }
+    }).then((response) => {
+        console.log("ok");
+        return response.json();
+    })
+    .then((json) => console.log(json))
+    .catch(error =>{
+        alert ("Network Error: " + error.message)
+    });
+}
+    </Script>
+</head>
+<body>
+
+    <h2>GET</h2>
+    <input type="text" id="getId" placeholder="Ingrese ID del post">
+    <button onclick="Get()">Enviar GET</button>
+
+    <hr>
+
+    
+    <h2>POST</h2>
+<input type="text" id="postId" placeholder="User ID">
+<input type="text" id="title" placeholder="Title">
+<input type="text" id="body" placeholder="Body">
+<button onclick="post()">Enviar POST</button>
+
+    <h2>PUT</h2>
+    <input type="text" id="Ingrese su ID usuario" placeholder="Ingrese ID del post">
+    <input type="text" id="Nombre de usuario" placeholder="User ID">
+    <input type="text" id="Title" placeholder="Title">
+    <input type="text" id="obody" placeholder="Body">
+    <button onclick="petiput()">Enviar PUT</button>
+
+    <hr>
+
+    <h2>PATCH</h2>
+<input type="text" id="parId" placeholder="Ingrese ID del post">
+
+<select id="parField">
+    <option value="title">Title</option>
+    <option value="body">Body</option>
+    <option value="userId">User ID</option>
+</select>
+
+<input type="text" id="parValue" placeholder="Nuevo valor">
+
+<button onclick="peticionPatch()">Enviar PATCH</button>
+
+    <hr>
+
+    <h2>DELETE</h2>
+    <input type="text" id="ID" placeholder="Ingrese ID del post">
+    <button onclick="petidelete()">Enviar DELETE</button>
+
+</body>
+</html>
+
