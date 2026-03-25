@@ -7,7 +7,7 @@ const Login = ({ onLogin }) => {
 
     const handleLogin = async () => {
         try {
-            const res = await fetch("http://localhost:3000/api/usuarios/login", {
+            const res = await fetch("https://api-usuarios-zxgt.onrender.com", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ nombre, contra }),
