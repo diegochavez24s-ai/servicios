@@ -3,8 +3,7 @@ import Modal from "../components/modal";
 import Alerta from "../components/alerta";
 import Tabla from "../components/tabla";
 
-const API_BASE = import.meta.env.VITE_API_URL || "https://api-usuarios-zxgt.onrender.com/api/empleados";
-const API = `${API_BASE}/empleados`;
+const API = "https://api-usuarios-zxgt.onrender.com/api/empleados";
 
 const Empleados = () => {
     const [empleados, setEmpleados] = useState([]);
@@ -20,7 +19,9 @@ const Empleados = () => {
 
     const cargarEmpleados = async () => {
         try {
-            const res = await fetch(`${API}/obtener`);
+            const res = await fetch(API);
+            if (!res.ok) throw new Error("Error al obtener datos");
+            
             const data = await res.json();
             const formateados = data.map(e => ({
                 ...e,
@@ -42,7 +43,6 @@ const Empleados = () => {
     };
 
     const handleEditar = (empleado) => {
-        
         const salarioNumerico = empleado.salario.replace(/[$,]/g, "");
         setForm({ ...empleado, salario: salarioNumerico });
         setEditando(true);
@@ -51,9 +51,13 @@ const Empleados = () => {
 
     const handleEliminar = async (empleado) => {
         if (confirm("¿Estás seguro de eliminar este empleado?")) {
-            await fetch(`${API}/eliminar/${empleado.id_empleado}`, { method: "DELETE" });
-            mostrarAlerta("Empleado eliminado correctamente", "error");
-            cargarEmpleados();
+            try {
+                await fetch(`${API}/eliminar/${empleado.id_empleado}`, { method: "DELETE" });
+                mostrarAlerta("Empleado eliminado correctamente", "exito");
+                cargarEmpleados();
+            } catch (error) {
+                mostrarAlerta("Error al eliminar", "error");
+            }
         }
     };
 
@@ -67,7 +71,7 @@ const Empleados = () => {
         const metodo = editando ? "PUT" : "POST";
 
         try {
-            await fetch(url, {
+            const res = await fetch(url, {
                 method: metodo,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -77,9 +81,14 @@ const Empleados = () => {
                     salario: form.salario
                 }),
             });
-            mostrarAlerta(editando ? "Actualizado con éxito" : "Agregado con éxito", "exito");
-            setModalOpen(false);
-            cargarEmpleados();
+
+            if (res.ok) {
+                mostrarAlerta(editando ? "Actualizado con éxito" : "Agregado con éxito", "exito");
+                setModalOpen(false);
+                cargarEmpleados();
+            } else {
+                mostrarAlerta("Error al guardar cambios", "error");
+            }
         } catch (error) {
             mostrarAlerta("Error al procesar la solicitud", "error");
         }

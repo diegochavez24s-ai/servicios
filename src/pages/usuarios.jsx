@@ -3,14 +3,13 @@ import Modal from "../components/modal";
 import Alerta from "../components/alerta";
 import Tabla from "../components/tabla";
 
-const API_BASE = import.meta.env.VITE_API_URL || "https://api-usuarios-zxgt.onrender.com";
-const API = `${API_BASE}/usuarios`;
+const API = "https://api-usuarios-zxgt.onrender.com/api/usuarios";
 
 const Usuarios = () => {
     const [usuarios, setUsuarios] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [alerta, setAlerta] = useState({ mensaje: "", tipo: "" });
-    const [form, setForm] = useState({ id_usuario: "", nombre: "", email: "", rol: "" });
+    const [form, setForm] = useState({ id_usuarios: "", nombre: "", contra: "" });
     const [editando, setEditando] = useState(false);
 
     const mostrarAlerta = (mensaje, tipo) => {
@@ -20,7 +19,8 @@ const Usuarios = () => {
 
     const cargarUsuarios = async () => {
         try {
-            const res = await fetch(`${API}/obtener`);
+            const res = await fetch(API);
+            if (!res.ok) throw new Error("Error al obtener usuarios");
             const data = await res.json();
             setUsuarios(data);
         } catch (error) {
@@ -32,7 +32,7 @@ const Usuarios = () => {
     useEffect(() => { cargarUsuarios(); }, []);
 
     const abrirModal = () => {
-        setForm({ id_usuario: "", nombre: "", email: "", rol: "" });
+        setForm({ id_usuarios: "", nombre: "", contra: "" });
         setEditando(false);
         setModalOpen(true);
     };
@@ -46,35 +46,38 @@ const Usuarios = () => {
     const handleEliminar = async (usuario) => {
         if (confirm("¿Estás seguro de eliminar este usuario?")) {
             try {
-                await fetch(`${API}/eliminar/${usuario.id_usuario}`, { method: "DELETE" });
-                mostrarAlerta("Usuario eliminado", "error");
+                await fetch(`${API}/eliminar/${usuario.id_usuarios}`, { method: "DELETE" });
+                mostrarAlerta("Usuario eliminado", "exito");
                 cargarUsuarios();
             } catch (error) {
-                mostrarAlerta("No se pudo eliminar", "error");
+                mostrarAlerta("Error al eliminar", "error");
             }
         }
     };
 
     const handleGuardar = async () => {
-        if (!form.nombre || !form.email || !form.rol) {
-            mostrarAlerta("Todos los campos son obligatorios", "error");
+        if (!form.nombre || !form.contra) {
+            mostrarAlerta("Nombre y contraseña son obligatorios", "error");
             return;
         }
 
-        const url = editando ? `${API}/actualizar/${form.id_usuario}` : `${API}/insertar`;
+        const url = editando ? `${API}/actualizar/${form.id_usuarios}` : `${API}/insertar`;
         const metodo = editando ? "PUT" : "POST";
 
         try {
-            await fetch(url, {
+            const res = await fetch(url, {
                 method: metodo,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(form),
             });
-            mostrarAlerta(editando ? "Usuario actualizado" : "Usuario creado", "exito");
-            setModalOpen(false);
-            cargarUsuarios();
+
+            if (res.ok) {
+                mostrarAlerta(editando ? "Usuario actualizado" : "Usuario creado", "exito");
+                setModalOpen(false);
+                cargarUsuarios();
+            }
         } catch (error) {
-            mostrarAlerta("Error en la operación", "error");
+            mostrarAlerta("Error al procesar", "error");
         }
     };
 
@@ -82,11 +85,8 @@ const Usuarios = () => {
         <div className="min-h-screen bg-slate-900 p-8">
             <div className="max-w-5xl mx-auto">
                 <div className="flex justify-between items-center mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold text-white">Usuarios del Sistema</h1>
-                        <p className="text-slate-500 text-sm mt-1">Administración de accesos</p>
-                    </div>
-                    <button onClick={abrirModal} className="bg-slate-700 hover:bg-slate-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition duration-200">
+                    <h1 className="text-2xl font-bold text-white">Usuarios del Sistema</h1>
+                    <button onClick={abrirModal} className="bg-slate-700 hover:bg-slate-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium">
                         + Nuevo Usuario
                     </button>
                 </div>
@@ -95,7 +95,7 @@ const Usuarios = () => {
 
                 <div className="bg-slate-800 rounded-2xl border border-slate-700">
                     <Tabla
-                        columnas={["ID", "Nombre", "Email", "Rol"]}
+                        columnas={["ID", "Nombre", "Contraseña"]}
                         datos={usuarios}
                         onEditar={handleEditar}
                         onEliminar={handleEliminar}
@@ -104,29 +104,18 @@ const Usuarios = () => {
             </div>
 
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editando ? "Editar Usuario" : "Nuevo Usuario"}>
-                <div className="space-y-4">
-                    <input type="text" placeholder="Nombre" value={form.nombre}
-                        onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                        className="w-full border border-slate-600 bg-slate-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-slate-400" />
-                    
-                    <input type="email" placeholder="Correo Electrónico" value={form.email}
-                        onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        className="w-full border border-slate-600 bg-slate-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-slate-400" />
-                    
-                    <select value={form.rol}
-                        onChange={(e) => setForm({ ...form, rol: e.target.value })}
-                        className="w-full border border-slate-600 bg-slate-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-slate-400">
-                        <option value="">Selecciona un Rol</option>
-                        <option value="Admin">Admin</option>
-                        <option value="Editor">Editor</option>
-                        <option value="Viewer">Viewer</option>
-                    </select>
-                    
-                    <button onClick={handleGuardar}
-                        className="w-full bg-slate-600 hover:bg-slate-500 text-white py-2.5 rounded-lg font-medium transition duration-200">
-                        {editando ? "Guardar Cambios" : "Crear Usuario"}
-                    </button>
-                </div>
+                <input type="number" placeholder="ID" value={form.id_usuarios}
+                    onChange={(e) => setForm({ ...form, id_usuarios: e.target.value })}
+                    className="w-full bg-slate-700 text-white rounded-lg px-4 py-2.5 mb-3" disabled={editando} />
+                <input type="text" placeholder="Nombre" value={form.nombre}
+                    onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+                    className="w-full bg-slate-700 text-white rounded-lg px-4 py-2.5 mb-3" />
+                <input type="password" placeholder="Contraseña" value={form.contra}
+                    onChange={(e) => setForm({ ...form, contra: e.target.value })}
+                    className="w-full bg-slate-700 text-white rounded-lg px-4 py-2.5 mb-5" />
+                <button onClick={handleGuardar} className="w-full bg-slate-600 text-white py-2.5 rounded-lg">
+                    {editando ? "Actualizar" : "Guardar"}
+                </button>
             </Modal>
         </div>
     );
