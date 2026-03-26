@@ -7,7 +7,7 @@ const Login = ({ onLogin }) => {
 
     const handleLogin = async () => {
         try {
-            const res = await fetch("https://api-usuarios-zxgt.onrender.com", {
+            const res = await fetch("https://api-usuarios-zxgt.onrender.com/api/usuarios/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ nombre, contra }),
