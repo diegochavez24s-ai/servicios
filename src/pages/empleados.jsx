@@ -3,7 +3,7 @@ import Modal from "../components/modal";
 import Alerta from "../components/alerta";
 import Tabla from "../components/tabla";
 
-const API_BASE = import.meta.env.VITE_API_URL || "https://api-usuarios-zxgt.onrender.com";
+const API_BASE = import.meta.env.VITE_API_URL || "https://api-usuarios-zxgt.onrender.com/api/empleados";
 const API = `${API_BASE}/empleados`;
 
 const Empleados = () => {
