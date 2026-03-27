@@ -19,7 +19,7 @@ const Usuarios = () => {
 
     const cargarUsuarios = async () => {
         try {
-            const res = await fetch(API);
+            const res = await fetch(`${API}/obtener`);
             if (!res.ok) throw new Error("Error al obtener usuarios");
             const data = await res.json();
             setUsuarios(data);
@@ -60,17 +60,14 @@ const Usuarios = () => {
             mostrarAlerta("Nombre y contraseña son obligatorios", "error");
             return;
         }
-
         const url = editando ? `${API}/actualizar/${form.id_usuarios}` : `${API}/insertar`;
         const metodo = editando ? "PUT" : "POST";
-
         try {
             const res = await fetch(url, {
                 method: metodo,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(form),
             });
-
             if (res.ok) {
                 mostrarAlerta(editando ? "Usuario actualizado" : "Usuario creado", "exito");
                 setModalOpen(false);
@@ -90,9 +87,7 @@ const Usuarios = () => {
                         + Nuevo Usuario
                     </button>
                 </div>
-
                 <Alerta mensaje={alerta.mensaje} tipo={alerta.tipo} onClose={() => setAlerta({ mensaje: "", tipo: "" })} />
-
                 <div className="bg-slate-800 rounded-2xl border border-slate-700">
                     <Tabla
                         columnas={["ID", "Nombre", "Contraseña"]}
@@ -102,18 +97,20 @@ const Usuarios = () => {
                     />
                 </div>
             </div>
-
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editando ? "Editar Usuario" : "Nuevo Usuario"}>
                 <input type="number" placeholder="ID" value={form.id_usuarios}
                     onChange={(e) => setForm({ ...form, id_usuarios: e.target.value })}
-                    className="w-full bg-slate-700 text-white rounded-lg px-4 py-2.5 mb-3" disabled={editando} />
+                    className="w-full border border-slate-600 bg-slate-700 text-white rounded-lg px-4 py-2.5 mb-3 focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-slate-400"
+                    disabled={editando} />
                 <input type="text" placeholder="Nombre" value={form.nombre}
                     onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                    className="w-full bg-slate-700 text-white rounded-lg px-4 py-2.5 mb-3" />
+                    autoComplete="off"
+                    className="w-full border border-slate-600 bg-slate-700 text-white rounded-lg px-4 py-2.5 mb-3 focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-slate-400" />
                 <input type="password" placeholder="Contraseña" value={form.contra}
                     onChange={(e) => setForm({ ...form, contra: e.target.value })}
-                    className="w-full bg-slate-700 text-white rounded-lg px-4 py-2.5 mb-5" />
-                <button onClick={handleGuardar} className="w-full bg-slate-600 text-white py-2.5 rounded-lg">
+                    autoComplete="new-password"
+                    className="w-full border border-slate-600 bg-slate-700 text-white rounded-lg px-4 py-2.5 mb-5 focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-slate-400" />
+                <button onClick={handleGuardar} className="w-full bg-slate-600 hover:bg-slate-500 text-white py-2.5 rounded-lg font-medium transition duration-200">
                     {editando ? "Actualizar" : "Guardar"}
                 </button>
             </Modal>

@@ -19,9 +19,8 @@ const Empleados = () => {
 
     const cargarEmpleados = async () => {
         try {
-            const res = await fetch(API);
+            const res = await fetch(`${API}/obtener`);
             if (!res.ok) throw new Error("Error al obtener datos");
-            
             const data = await res.json();
             const formateados = data.map(e => ({
                 ...e,
@@ -43,7 +42,7 @@ const Empleados = () => {
     };
 
     const handleEditar = (empleado) => {
-        const salarioNumerico = empleado.salario.replace(/[$,]/g, "");
+        const salarioNumerico = String(empleado.salario).replace(/[$,]/g, "");
         setForm({ ...empleado, salario: salarioNumerico });
         setEditando(true);
         setModalOpen(true);
@@ -66,10 +65,8 @@ const Empleados = () => {
             mostrarAlerta("Todos los campos son obligatorios", "error");
             return;
         }
-
         const url = editando ? `${API}/actualizar/${form.id_empleado}` : `${API}/insertar`;
         const metodo = editando ? "PUT" : "POST";
-
         try {
             const res = await fetch(url, {
                 method: metodo,
@@ -81,7 +78,6 @@ const Empleados = () => {
                     salario: form.salario
                 }),
             });
-
             if (res.ok) {
                 mostrarAlerta(editando ? "Actualizado con éxito" : "Agregado con éxito", "exito");
                 setModalOpen(false);
@@ -106,9 +102,7 @@ const Empleados = () => {
                         + Nuevo Empleado
                     </button>
                 </div>
-
                 <Alerta mensaje={alerta.mensaje} tipo={alerta.tipo} onClose={() => setAlerta({ mensaje: "", tipo: "" })} />
-
                 <div className="bg-slate-800 rounded-2xl border border-slate-700">
                     <Tabla
                         columnas={["ID", "Nombre", "Puesto", "Salario"]}
@@ -118,25 +112,20 @@ const Empleados = () => {
                     />
                 </div>
             </div>
-
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editando ? "Editar Empleado" : "Nuevo Empleado"}>
                 <input type="number" placeholder="ID Empleado" value={form.id_empleado}
                     onChange={(e) => setForm({ ...form, id_empleado: e.target.value })}
                     className="w-full border border-slate-600 bg-slate-700 text-white rounded-lg px-4 py-2.5 mb-3 focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-slate-400"
                     disabled={editando} />
-                
                 <input type="text" placeholder="Nombre" value={form.nombre}
                     onChange={(e) => setForm({ ...form, nombre: e.target.value })}
                     className="w-full border border-slate-600 bg-slate-700 text-white rounded-lg px-4 py-2.5 mb-3 focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-slate-400" />
-                
                 <input type="text" placeholder="Puesto" value={form.puesto}
                     onChange={(e) => setForm({ ...form, puesto: e.target.value })}
                     className="w-full border border-slate-600 bg-slate-700 text-white rounded-lg px-4 py-2.5 mb-3 focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-slate-400" />
-                
                 <input type="number" placeholder="Salario" value={form.salario}
                     onChange={(e) => setForm({ ...form, salario: e.target.value })}
                     className="w-full border border-slate-600 bg-slate-700 text-white rounded-lg px-4 py-2.5 mb-5 focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-slate-400" />
-                
                 <button onClick={handleGuardar}
                     className="w-full bg-slate-600 hover:bg-slate-500 text-white py-2.5 rounded-lg font-medium transition duration-200">
                     {editando ? "Actualizar" : "Guardar"}
